@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:dialogs="using:Avalonia.Dialogs"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:utilities="using:Avalonia.Utilities"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="JuliaCrypt.MainWindow"
+        Title="JuliaCrypt">
+    <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Border Height="10" Background="DarkSlateGray" VerticalAlignment="Top" DockPanel.Dock="Top"/>
+        <Border Height="10" Background="DarkSlateGray" VerticalAlignment="Bottom" DockPanel.Dock="Bottom"/>
+        <Border Width="10" Background="DarkSlateGray" HorizontalAlignment="Left" DockPanel.Dock="Left"/>
+        <Border Width="10" Background="DarkSlateGray" HorizontalAlignment="Right"  DockPanel.Dock="Right"/>
+        <StackPanel Name="MainPanel" Background="DarkSlateGray" TextElement.Foreground="WhiteSmoke" Spacing="-2">
+            <Border Name="InputsBorder" BorderBrush="Black" BorderThickness="2" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <StackPanel Name="InputsPanel" Spacing="1" HorizontalAlignment="Stretch">
+		            <TextBlock FontWeight="Bold">Inputs/Outputs</TextBlock>
+                    <Grid ColumnDefinitions="10,*,*,*" RowDefinitions="Auto,Auto" Margin="5">
+		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="1">InputFile</TextBlock> <!-- Use buttons and change the text to match? -->
+                        <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="1">OutputFile</TextBlock> <!-- make a new window pop up to choose files? -->
+		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="2">SaveSettings</TextBlock> 
+		                <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="2">LoadSettings</TextBlock> 
+		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="3">SaveKey</TextBlock>
+		                <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="3">LoadKey</TextBlock>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ColumnDefinitions="2*,*" ColumnSpacing="-2" RowSpacing="-2">
+                <Grid Name="SettingsPanel" RowDefinitions="*,Auto" ColumnDefinitions="*,*" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                      ColumnSpacing="-2" RowSpacing="-2">
+                    <Border BorderBrush="Black" BorderThickness="2" Grid.Row="0" Grid.Column="0"/>
+                    <Border BorderBrush="Black" BorderThickness="2" Grid.Row="0" Grid.Column="1"/>
+                    <Border BorderBrush="Black" BorderThickness="2" Grid.Row="1" Grid.Column="0"/>
+                    <Border BorderBrush="Black" BorderThickness="2" Grid.Row="1" Grid.Column="1"/>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="5" Grid.Row="0" Grid.Column="0">
+                        <TextBlock FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">Encryption Settings</TextBlock>
+                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Key Option(Default to File)</TextBlock>
+                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Encryption Family</TextBlock>
+                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Encryption Suboptions</TextBlock>
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="5" Grid.Row="0" Grid.Column="1">
+                        <TextBlock FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">Steganography Settings</TextBlock>
+                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Steganography Family</TextBlock>
+                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Steganography SubOptions</TextBlock>
+                    </StackPanel>
+                    <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="0" MinHeight="25">Encrypt and Encode</TextBlock>
+                    <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="1" MinHeight="25">Decode and Decrypt</TextBlock>
+                </Grid>
+                <Border Name="ImageBorder" BorderBrush="Black" BorderThickness="2"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Grid.Row="0" Grid.Column="1">
+                    <StackPanel Name="ImagePanel" Spacing="5">
+                        <Border Height="5"/>
+                        <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
+                                <Border Width="0" Height="0"/>
+                                <TextBlock FontWeight="Light" HorizontalAlignment="Center"
+                                           TextAlignment="Center" Width="20" TextWrapping="Wrap">Image Center Y Slider</TextBlock>
+                            <Image Margin="0" Width="200" Height="200" Source="../Assets/BlackSquare.png"/>
+                        </StackPanel>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Image Center X Slider</TextBlock>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Zoom Slider</TextBlock>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+							<TextBlock FontWeight="Light" HorizontalAlignment="Center">Zbox</TextBlock>
+							<TextBlock FontWeight="Light" HorizontalAlignment="Center">Xbox</TextBlock>
+							<TextBlock FontWeight="Light" HorizontalAlignment="Center">Ybox</TextBlock>
+                        </StackPanel>
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="Black" BorderThickness="1" Name="GenerationParamaterSeparationBorder"/>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Generation Source DropDown</TextBlock>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Parameter A Slider</TextBlock>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Parameter B Slider</TextBlock>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Parameter C Slider</TextBlock>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </DockPanel>
+</Window>
