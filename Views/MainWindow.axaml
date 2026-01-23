@@ -1,12 +1,20 @@
 <Window xmlns="https://github.com/avaloniaui"
+        xmlns:compilerservices="using:System.Runtime.CompilerServices"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:dialogs="using:Avalonia.Dialogs"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:utilities="using:Avalonia.Utilities"
+        xmlns:viewmodels="using:JuliaCrypt.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="JuliaCrypt.MainWindow"
+        x:DataType="viewmodels:MainWindowViewModel"
+        xmlns:converters="using:JuliaCrypt.Converters"
         Title="JuliaCrypt">
+    <Window.Resources>
+		<converters:FileToInputButtonConverter x:Key="FileToInputButtonConverter"/>
+		<converters:FileToOutputButtonConverter x:Key="FileToOutputButtonConverter"/>
+    </Window.Resources>
     <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Border Height="10" Background="DarkSlateGray" VerticalAlignment="Top" DockPanel.Dock="Top"/>
         <Border Height="10" Background="DarkSlateGray" VerticalAlignment="Bottom" DockPanel.Dock="Bottom"/>
@@ -17,8 +25,22 @@
                 <StackPanel Name="InputsPanel" Spacing="1" HorizontalAlignment="Stretch">
 		            <TextBlock FontWeight="Bold">Inputs/Outputs</TextBlock>
                     <Grid ColumnDefinitions="10,*,*,*" RowDefinitions="Auto,Auto" Margin="5">
-		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="1">InputFile</TextBlock> <!-- Use buttons and change the text to match? -->
-                        <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="1">OutputFile</TextBlock> <!-- make a new window pop up to choose files? -->
+                        <Button Click="InputFileClickHandler" FontWeight="Light"
+                                TextElement.Foreground="WhiteSmoke" Background="SlateGray"
+                                ToolTip.Tip="Select file to be processed." Name="InputFileButton"
+                                Grid.Row="0" Grid.Column="1" 
+                                Content="{Binding InputFile, Mode=OneWay, Converter={StaticResource FileToInputButtonConverter}, FallbackValue=Select file to be processed.}">
+                            <FlyoutBase.AttachedFlyout>
+								<Flyout ShowMode="Transient">
+                                    <TextBlock FontWeight="Bold" Text="Please Select a File"/>
+                                </Flyout>
+                            </FlyoutBase.AttachedFlyout>
+                        </Button>
+                        <Button Click="OutputFileClickHandler" FontWeight="Light"
+                                TextElement.Foreground="WhiteSmoke" Background="SlateGray"
+                                ToolTip.Tip="Select file to save the output to." Name="OutputFileButton"
+                                Grid.Row="1" Grid.Column="1"
+                                Content="{Binding OutputFile, Mode=OneWay, Converter={StaticResource FileToOutputButtonConverter}, FallbackValue=Select Save Destination,}"/>
 		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="2">SaveSettings</TextBlock> 
 		                <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="2">LoadSettings</TextBlock> 
 		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="3">SaveKey</TextBlock>
@@ -55,10 +77,10 @@
                         <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
                                 <Border Width="0" Height="0"/>
                                 <TextBlock FontWeight="Light" HorizontalAlignment="Center"
-                                           TextAlignment="Center" Width="20" TextWrapping="Wrap">Image Center Y Slider</TextBlock>
-                            <Image Margin="0" Width="200" Height="200" Source="../Assets/BlackSquare.png"/>
+                                           TextAlignment="Center" Width="20" TextWrapping="Wrap" ToolTip.Tip="Vertical Image Center Slider">Image Center Y Slider</TextBlock>
+                            <Image Margin="0" Width="200" Height="200" Source="../Assets/BlackSquare.png" ToolTip.Tip="Preview for the image Generator"/>
                         </StackPanel>
-                        <TextBlock FontWeight="Light" HorizontalAlignment="Center">Image Center X Slider</TextBlock>
+                        <TextBlock FontWeight="Light" HorizontalAlignment="Center" ToolTip.Tip="Horizontal image center slider">Image Center X Slider</TextBlock>
                         <TextBlock FontWeight="Light" HorizontalAlignment="Center">Zoom Slider</TextBlock>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
 							<TextBlock FontWeight="Light" HorizontalAlignment="Center">Zbox</TextBlock>
