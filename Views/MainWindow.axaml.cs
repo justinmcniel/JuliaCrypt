@@ -10,6 +10,7 @@ namespace JuliaCrypt
 {
     public partial class MainWindow : Window
     {
+            //ImagePanel.IsVisible = !ImagePanel.IsVisible;
         public MainWindow()
         {
             InitializeComponent();
@@ -20,9 +21,7 @@ namespace JuliaCrypt
 
         public void InvalidInputFileSelected() => FlyoutBase.ShowAttachedFlyout(InputFileButton);
 
-        private void OutputFileClickHandler(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-        {
+        private void OutputFileClickHandler(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
             App.MWvmInstance.OutputFile = FilePicker.ChooseOutputFile(title: "Select Save File.");
-        }
     }
 }

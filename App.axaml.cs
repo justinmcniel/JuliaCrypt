@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using JuliaCrypt.CryptographicManagers;
 using JuliaCrypt.ViewModels;
 
 namespace JuliaCrypt
@@ -25,6 +26,8 @@ namespace JuliaCrypt
                 desktop.MainWindow = MWInstance;
             }
             base.OnFrameworkInitializationCompleted();
+            CryptographicManager.InitializeManagers();
+            KeyManager.InitializeManagers();
         }
     }
 }
