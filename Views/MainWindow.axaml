@@ -57,9 +57,16 @@
                     <Border BorderBrush="Black" BorderThickness="2" Grid.Row="1" Grid.Column="1"/>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="5" Grid.Row="0" Grid.Column="0">
                         <TextBlock FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">Encryption Settings</TextBlock>
-                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Key Option(Default to File)</TextBlock>
-                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Encryption Family</TextBlock>
-                        <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Encryption Suboptions</TextBlock>
+                        <ComboBox SelectedIndex="0" Name="KeyFamilySelector" 
+                                  AutoScrollToSelectedItem="True" SelectionChanged="KeyFamilySelectionChanged"
+                                  FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        </ComboBox>
+                        <ComboBox SelectedIndex="0" Name="EncryptionFamilySelector" 
+                                  AutoScrollToSelectedItem="True" SelectionChanged="EncryptionFamilySelectionChanged"
+                                  FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">
+							<ComboBoxItem>Please Select Encryption Family</ComboBoxItem>
+                        </ComboBox>
+                        <StackPanel Name="EncryptionSubOptions" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="5" Grid.Row="0" Grid.Column="1">
                         <TextBlock FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">Steganography Settings</TextBlock>

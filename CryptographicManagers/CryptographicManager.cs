@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using HarfBuzzSharp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace JuliaCrypt.CryptographicManagers
 {
@@ -17,6 +20,9 @@ namespace JuliaCrypt.CryptographicManagers
         private static Dictionary<Type, CryptographicManager> _cryptographicManagers = new();
         public static IEnumerable<CryptographicManager> CryptographicManagers
         { get => _cryptographicManagers.Values; }
+
+        public static IEnumerable<string> CryptographicManagerNames
+        { get => _cryptographicManagerTypes.Keys; }
 
         public static void InitializeManagers() 
         {
@@ -34,6 +40,14 @@ namespace JuliaCrypt.CryptographicManagers
 
             _ = Parallel.ForEach(CryptographicManagers, manager =>
             { manager.Initialize(); });
+
+            foreach (var name in CryptographicManagerNames)
+            {
+                App.MWInstance.EncryptionFamilySelector.Items.Add(new ComboBoxItem()
+                {
+                    Content = name,
+                });
+            }
         }
 
         private static CryptographicManager? GetManagerInstance(Type managerType)
@@ -46,17 +60,24 @@ namespace JuliaCrypt.CryptographicManagers
             return null;
         }
 
-        public static CryptographicManager? GetManager(Type managerType) => 
-            _cryptographicManagers[managerType];
-        public static CryptographicManager? GetManager(string identifier) => 
-            GetManager(_cryptographicManagerTypes[identifier]);
+        public static CryptographicManager? GetManager(Type managerType)
+        {
+            try { return _cryptographicManagers[managerType]; }
+            catch (KeyNotFoundException) { return null; }
+        }
+        public static CryptographicManager? GetManager(string identifier)
+        {
+            try { return GetManager(_cryptographicManagerTypes[identifier]); }
+            catch (KeyNotFoundException) { return null; }
+        }
 
-        protected abstract void Initialize();
         protected abstract string Identifier { get; }
-        protected abstract void OnSelected();
-        protected abstract void OnDeselected();
+        public abstract uint SelectedKeySize { get; }
+        protected abstract void Initialize();
+        public abstract void OnSelected();
+        public abstract void OnDeselected();
 
-        protected abstract byte[] Encrypt(FileInfo plaintext, KeyManager key);
-        protected abstract byte[] Decrypt(FileInfo plaintext, KeyManager key);
+        public abstract byte[] Encrypt(byte[] plaintext, KeyManager key);
+        public abstract byte[] Decrypt(byte[] ciphertext, KeyManager key);
     }
 }

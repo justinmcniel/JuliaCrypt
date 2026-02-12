@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,8 @@ namespace JuliaCrypt.CryptographicManagers
         private static Dictionary<Type, KeyManager> _keyManagers = new();
         public static IEnumerable<KeyManager> KeyManagers
         { get => _keyManagers.Values; }
+        public static IEnumerable<string> KeyManagerNames
+        { get => _keyManagerTypes.Keys; }
 
         public static void InitializeManagers()
         {
@@ -32,6 +35,15 @@ namespace JuliaCrypt.CryptographicManagers
 
             _ = Parallel.ForEach(KeyManagers, manager =>
             { manager.Initialize(); });
+
+
+            foreach (var name in KeyManagerNames)
+            {
+                App.MWInstance.KeyFamilySelector.Items.Add(new ComboBoxItem()
+                {
+                    Content = name,
+                });
+            }
         }
 
         private static KeyManager? GetManagerInstance(Type managerType)
@@ -44,18 +56,25 @@ namespace JuliaCrypt.CryptographicManagers
             return null;
         }
 
-        public static KeyManager? GetManager(Type managerType) =>
-            _keyManagers[managerType];
+        public static KeyManager? GetManager(Type managerType)
+        {
+            try { return _keyManagers[managerType]; }
+            catch (KeyNotFoundException) { return null; }
+        }
 
-        public static KeyManager? GetManager(string identifier) =>
-            GetManager(_keyManagerTypes[identifier]);
+        public static KeyManager? GetManager(string identifier)
+        {
+            try { GetManager(_keyManagerTypes[identifier]); }
+            catch (KeyNotFoundException) { return null; }
+            return null; // why is it needed here, and not in Cryptographic Manager? WTF
+        }
 
-        protected abstract void Initialize();
         protected abstract string Identifier { get; }
-        protected abstract void OnSelected();
-        protected abstract void OnDeselected();
-        protected abstract byte[] RequestKey(uint bitsize);
-        protected abstract void Seed(byte[] seed);
+        protected abstract void Initialize();
+        public abstract void OnSelected();
+        public abstract void OnDeselected();
+        public abstract byte[] RequestKey(uint bitsize);
+        public abstract void Seed(byte[] seed);
 
     }
 }
