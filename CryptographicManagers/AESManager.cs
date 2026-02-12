@@ -81,11 +81,11 @@ namespace JuliaCrypt.CryptographicManagers
 
         public override byte[] Encrypt(byte[] plaintext, KeyManager key)
         {
-            return new byte[] { 1, 2, 3 };
+            throw new NotImplementedException();
         }
         public override byte[] Decrypt(byte[] ciphertext, KeyManager key)
         {
-            return new byte[] { 1, 2, 3 };
+            throw new NotImplementedException();
         }
     }
 }
