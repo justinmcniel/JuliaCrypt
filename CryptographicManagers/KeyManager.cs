@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace JuliaCrypt.CryptographicManagers
 {
-    public abstract class KeyManager
+    public abstract class KeyManager : IDisposable
     {
         private static Dictionary<string, Type> _keyManagerTypes = new();
         public static IEnumerable<Type> KeyManagerTypes
@@ -48,11 +48,16 @@ namespace JuliaCrypt.CryptographicManagers
 
         private static KeyManager? GetManagerInstance(Type managerType)
         {
-            var instance = Activator.CreateInstance(managerType);
-            if (instance is KeyManager manager)
+            try
             {
-                return manager;
+                var instance = Activator.CreateInstance(managerType);
+                if (instance is KeyManager manager)
+                {
+                    return manager;
+                }
             }
+            catch (MissingMethodException)
+            { return null; } //is an abstract class
             return null;
         }
 
@@ -69,11 +74,15 @@ namespace JuliaCrypt.CryptographicManagers
             return null; // why is it needed here, and not in Cryptographic Manager? WTF
         }
 
+        public bool ShouldRequestIV { get => false; }
+
+        public abstract void Dispose();
         protected abstract string Identifier { get; }
         protected abstract void Initialize();
         public abstract void OnSelected();
         public abstract void OnDeselected();
         public abstract byte[] RequestKey(uint bitsize);
+        public abstract byte[]? RequestIV(int bitsize);
         public abstract void Seed(byte[] seed);
 
     }

@@ -48,7 +48,7 @@ namespace JuliaCrypt.ViewModels
                 }
                 else
                 {
-                    Debug.WriteLine("OutputFile got set as NULL");
+                    Debug.WriteLine("Attempted to set OutputFile as NULL");
                 }
             }
         }

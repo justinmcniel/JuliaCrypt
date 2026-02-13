@@ -24,10 +24,29 @@ namespace JuliaCrypt
                     DataContext = MWvmInstance,
                 };
                 desktop.MainWindow = MWInstance;
+                desktop.Startup += OnStartup;
+                desktop.Exit += OnExit;
             }
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void OnStartup(object? sender, ControlledApplicationLifetimeStartupEventArgs args)
+        {
             CryptographicManager.InitializeManagers();
             KeyManager.InitializeManagers();
+        }
+
+        private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs args)
+        {
+            foreach(var manager in CryptographicManager.CryptographicManagers)
+            {
+                manager.Dispose();
+            }
+
+            foreach(var manager in KeyManager.KeyManagers)
+            {
+                manager.Dispose();
+            }
         }
     }
 }

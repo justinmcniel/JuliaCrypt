@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace JuliaCrypt.CryptographicManagers
 {
-    public abstract class CryptographicManager
+    public abstract class CryptographicManager : IDisposable
     {
         private static Dictionary<string, Type> _cryptographicManagerTypes = new();
         public static IEnumerable<Type> CryptographicManagerTypes 
@@ -52,11 +52,16 @@ namespace JuliaCrypt.CryptographicManagers
 
         private static CryptographicManager? GetManagerInstance(Type managerType)
         {
-            var instance = Activator.CreateInstance(managerType);
-            if (instance is CryptographicManager manager)
+            try
             {
-                return manager;
+                var instance = Activator.CreateInstance(managerType);
+                if (instance is CryptographicManager manager)
+                {
+                    return manager;
+                }
             }
+            catch (MissingMethodException)
+            { return null; } //is an abstract class
             return null;
         }
 
@@ -71,11 +76,26 @@ namespace JuliaCrypt.CryptographicManagers
             catch (KeyNotFoundException) { return null; }
         }
 
+        public abstract void Dispose();
+
+        private static long _biggestKeySizeBits = 0;
+        public static long BiggestKeyBitSize
+        {
+            get => _biggestKeySizeBits;
+            protected set => _biggestKeySizeBits = Math.Max(value, _biggestKeySizeBits);
+        }
+
         protected abstract string Identifier { get; }
-        public abstract uint SelectedKeySize { get; }
-        protected abstract void Initialize();
-        public abstract void OnSelected();
-        public abstract void OnDeselected();
+        public abstract uint SelectedKeyBitSize { get; protected set; }
+        protected abstract long FamilyBiggestKeyBitSize { get; }
+        protected void Initialize()
+        {
+            BiggestKeyBitSize = FamilyBiggestKeyBitSize;
+        }
+        public virtual void OnSelected()
+        {
+            App.MWInstance.EncryptionSubOptions.Children.Clear(); //Just in case something else is already 
+        }
 
         public abstract byte[] Encrypt(byte[] plaintext, KeyManager key);
         public abstract byte[] Decrypt(byte[] ciphertext, KeyManager key);

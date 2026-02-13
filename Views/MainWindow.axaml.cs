@@ -39,18 +39,6 @@ namespace JuliaCrypt
                     }
                 }
             }
-
-            foreach(var added in e.RemovedItems)
-            {
-                if (added is ComboBoxItem item)
-                {
-                    if(item.Content is string deselected)
-                    {
-                        Debug.WriteLine($"Deselected {deselected}");
-                        CryptographicManager.GetManager(deselected)?.OnDeselected();
-                    }
-                }
-            }
         }
 
         private void KeyFamilySelectionChanged(object? sender, SelectionChangedEventArgs e)
