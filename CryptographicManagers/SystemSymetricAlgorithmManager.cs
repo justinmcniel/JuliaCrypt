@@ -13,7 +13,6 @@ namespace JuliaCrypt.CryptographicManagers
 {
     internal abstract class SystemSymetricAlgorithmManager : CryptographicManager
     {
-        // serialize needs to do key size, mode, and padding
         protected abstract Func<SymmetricAlgorithm> ManagerCreator { get; }
 
         private SymmetricAlgorithm? _engine = null;
@@ -30,7 +29,7 @@ namespace JuliaCrypt.CryptographicManagers
             set => _engine ??= value;
         }
 
-        protected new void Initialize()
+        protected override void Initialize()
         {
             base.Initialize();
             Engine = ManagerCreator.Invoke();
@@ -210,7 +209,21 @@ namespace JuliaCrypt.CryptographicManagers
                         {
                             throw new Exception($"Type Mismatch between {arg.GetType().Name} (actual) and CipherMode (expected)");
                         }
-                    }, verticalAlignment, horizontalAlignment);
+                    }, Conditional: (CipherMode mode) =>
+                    {
+                        var tmp = Engine.Mode;
+                        try 
+                        {
+                            Engine.Mode = mode;
+                            Engine.Mode = tmp;
+                            return true;
+                        }
+                        catch (CryptographicException)
+                        {
+                            Engine.Mode = tmp;
+                            return false;
+                        }
+                    }, verticalAlignment: verticalAlignment, horizontalAlignment: horizontalAlignment);
                 modeButtons.Where(b => b.Content?.ToString() == Mode.ToString()).First().IsChecked = true;
                 res.Add(modeButtons);
             }
@@ -242,7 +255,7 @@ namespace JuliaCrypt.CryptographicManagers
                         {
                             throw new Exception($"Type Mismatch between {arg.GetType().Name} (actual) and PaddingMode (expected)");
                         }
-                    }, verticalAlignment, horizontalAlignment);
+                    }, verticalAlignment: verticalAlignment, horizontalAlignment: horizontalAlignment);
                 paddingButtons.Where(b => b.Content?.ToString() == Padding.ToString()).First().IsChecked = true;
                 res.Add(paddingButtons);
             }
@@ -319,6 +332,24 @@ namespace JuliaCrypt.CryptographicManagers
         {
             Engine.Clear();
             Engine.Dispose();
+        }
+
+        protected override dynamic SerializeHelper()
+        {
+            dynamic res = new System.Dynamic.ExpandoObject();
+            res.KeySize = SelectedKeyBitSize;
+            res.Mode = Mode;
+            res.Padding = Padding;
+            res.BlockSize = BlockSize;
+            return res;
+        }
+
+        protected override void DeserializeHelper(dynamic serialized)
+        {
+            SelectedKeyBitSize = serialized.KeySize;
+            Mode = serialized.Mode;
+            Padding = serialized.Padding;
+            BlockSize = serialized.BlockSize;
         }
     }
 }

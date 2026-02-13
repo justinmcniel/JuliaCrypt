@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls;
 using HarfBuzzSharp;
+using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -88,15 +90,58 @@ namespace JuliaCrypt.CryptographicManagers
         protected abstract string Identifier { get; }
         public abstract uint SelectedKeyBitSize { get; protected set; }
         protected abstract long FamilyBiggestKeyBitSize { get; }
-        protected void Initialize()
+        protected virtual void Initialize()
         {
             BiggestKeyBitSize = FamilyBiggestKeyBitSize;
         }
         public virtual void OnSelected()
         {
+            Debug.WriteLine($"Selected {Identifier}");
             App.MWInstance.EncryptionSubOptions.Children.Clear(); //Just in case something else is already 
         }
 
+        public static dynamic Serialize()
+        {
+            dynamic res = new System.Dynamic.ExpandoObject();
+
+            var selectedManager = ((ComboBoxItem)App.MWInstance.EncryptionFamilySelector.SelectedItem!).Content!.ToString()!;
+            var activeManager = GetManager(selectedManager);
+            if (activeManager != null && activeManager.GetType() != typeof(CryptographicManager))
+            {
+                res.ID = activeManager.Identifier;
+                res.FamilyOptions = activeManager?.SerializeHelper();
+            }
+            else
+            {
+                res.ID = selectedManager;
+            }
+            return res;
+        }
+
+        protected abstract dynamic SerializeHelper();
+
+        public static void Deserialize(dynamic serialized)
+        {
+            try
+            {
+                CryptographicManager activeManager = GetManager(serialized.ID.ToString()!);
+                if (activeManager != null)
+                {
+                    activeManager.DeserializeHelper(serialized.FamilyOptions);
+                    foreach (var item in App.MWInstance.EncryptionFamilySelector.Items)
+                    {
+                        if (item is ComboBoxItem cbi && cbi.Content?.ToString() == activeManager.Identifier)
+                        {
+                            App.MWInstance.EncryptionFamilySelector.SelectedItem = item;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (RuntimeBinderException) { }
+        }
+
+        protected abstract void DeserializeHelper(dynamic serialized);
         public abstract byte[] Encrypt(byte[] plaintext, KeyManager key);
         public abstract byte[] Decrypt(byte[] ciphertext, KeyManager key);
     }

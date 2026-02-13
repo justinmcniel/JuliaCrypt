@@ -80,7 +80,6 @@ namespace JuliaCrypt.CryptographicManagers
         protected abstract string Identifier { get; }
         protected abstract void Initialize();
         public abstract void OnSelected();
-        public abstract void OnDeselected();
         public abstract byte[] RequestKey(uint bitsize);
         public abstract byte[]? RequestIV(int bitsize);
         public abstract void Seed(byte[] seed);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -43,16 +44,21 @@ namespace JuliaCrypt
             return res;
         }
 
-        public static List<RadioButton> CreateRadioButtonsFromEnum<TEnum>(Panel panel, Action<TEnum>? OnChanged,
+        public static List<RadioButton> CreateRadioButtonsFromEnum<TEnum>(Panel panel, Action<TEnum>? OnChanged, Func<TEnum, bool>? Conditional = null
+        ,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center) 
             where TEnum : struct, Enum
         {
             List<RadioButton> res = new();
 
+            Conditional ??= (TEnum val) => { return true; };
+
             var groupName = Guid.NewGuid().ToString();
 
             foreach(TEnum value in Enum.GetValues(typeof(TEnum)).Cast<TEnum>())
             {
+                if (!Conditional!.Invoke(value)) { continue; }
+
                 var child = CreateRadioButton(groupName, value, 
                     (val) =>
                     {

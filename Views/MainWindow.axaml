@@ -24,7 +24,7 @@
             <Border Name="InputsBorder" BorderBrush="Black" BorderThickness="2" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <StackPanel Name="InputsPanel" Spacing="1" HorizontalAlignment="Stretch">
 		            <TextBlock FontWeight="Bold">Inputs/Outputs</TextBlock>
-                    <Grid ColumnDefinitions="10,*,*,*" RowDefinitions="Auto,Auto" Margin="5">
+                    <Grid ColumnDefinitions="10,*,120" RowDefinitions="Auto,Auto" Margin="5">
                         <Button Click="InputFileClickHandler" FontWeight="Light"
                                 TextElement.Foreground="WhiteSmoke" Background="SlateGray"
                                 ToolTip.Tip="Select file to be processed." Name="InputFileButton"
@@ -41,10 +41,14 @@
                                 ToolTip.Tip="Select file to save the output to." Name="OutputFileButton"
                                 Grid.Row="1" Grid.Column="1"
                                 Content="{Binding OutputFile, Mode=OneWay, Converter={StaticResource FileToOutputButtonConverter}, FallbackValue=Select Save Destination,}"/>
-		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="2">SaveSettings</TextBlock> 
-		                <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="2">LoadSettings</TextBlock> 
-		                <TextBlock FontWeight="Light" Grid.Row="0" Grid.Column="3">SaveKey</TextBlock>
-		                <TextBlock FontWeight="Light" Grid.Row="1" Grid.Column="3">LoadKey</TextBlock>
+                        <Button FontWeight="Light" Grid.Row="0" Grid.Column="2" 
+                                TextElement.Foreground="WhiteSmoke" Background="SlateGray"
+                                ToolTip.Tip="Save the Encryption and Stegonographic settings to a file." Name="SaveSettingsButton"
+                                Click="SaveSettings" Content="Save Settings"/>
+                        <Button FontWeight="Light" Grid.Row="1" Grid.Column="2" 
+                                TextElement.Foreground="WhiteSmoke" Background="SlateGray"
+                                ToolTip.Tip="Load the Encryption and Stegonographic settings from a file." Name="LoadSettingsButton"
+                                Click="LoadSettings" Content="Load Settings"/>
                     </Grid>
                 </StackPanel>
             </Border>
