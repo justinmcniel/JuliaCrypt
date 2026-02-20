@@ -5,9 +5,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JuliaCrypt.CryptographicManagers
+namespace JuliaCrypt.Managers.CryptographicManagers.SymetricAlgorithmManagers
 {
-    internal class DESManager : SystemSymetricAlgorithmManager
+    internal class DESManager : SymetricAlgorithmManager
     {
         protected override string Identifier { get => "LEGACY: DES (Data Encryption Standard)"; }
 

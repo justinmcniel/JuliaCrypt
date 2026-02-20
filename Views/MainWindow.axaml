@@ -65,6 +65,7 @@
                                   AutoScrollToSelectedItem="True" SelectionChanged="KeyFamilySelectionChanged"
                                   FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">
                         </ComboBox>
+                        <StackPanel Name="KeySubOptions" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         <ComboBox SelectedIndex="0" Name="EncryptionFamilySelector" 
                                   AutoScrollToSelectedItem="True" SelectionChanged="EncryptionFamilySelectionChanged"
                                   FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -77,8 +78,32 @@
                         <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Steganography Family</TextBlock>
                         <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center">Steganography SubOptions</TextBlock>
                     </StackPanel>
-                    <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="0" MinHeight="25">Encrypt and Encode</TextBlock>
-                    <TextBlock FontWeight="Light" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.Column="1" MinHeight="25">Decode and Decrypt</TextBlock>
+                    <Button FontWeight="Light" Grid.Row="1" Grid.Column="0"
+                            TextElement.Foreground="WhiteSmoke" Background="SlateGray"
+                            BorderBrush="Black" BorderThickness="2"
+                            ToolTip.Tip="Begin Encrypting and Encoding the selected file with the selected settings" Name="EncryptAndEncode"
+                            Click="ProcessEncrypt" Content="Encrypt and Encode"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <FlyoutBase.AttachedFlyout>
+								<Flyout ShowMode="Transient">
+                                    <TextBlock FontWeight="Bold" Text="Not Able to Process with Current Settings"/>
+                                </Flyout>
+                            </FlyoutBase.AttachedFlyout>
+                    </Button>
+                    <Button FontWeight="Light" Grid.Row="1" Grid.Column="1"
+                            TextElement.Foreground="WhiteSmoke" Background="SlateGray"
+                            BorderBrush="Black" BorderThickness="2"
+                            ToolTip.Tip="Begin Decrypting and Decoding the selected file with the selected settings" Name="DecryptAndDecode"
+                            Click="ProcessDecrypt" Content="Decrypt and Decode"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                            <FlyoutBase.AttachedFlyout>
+								<Flyout ShowMode="Transient">
+                                    <TextBlock FontWeight="Bold" Text="Not Able to Process with Current Settings"/>
+                                </Flyout>
+                            </FlyoutBase.AttachedFlyout>
+                    </Button>
                 </Grid>
                 <Border Name="ImageBorder" BorderBrush="Black" BorderThickness="2"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

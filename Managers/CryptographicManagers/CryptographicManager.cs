@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using HarfBuzzSharp;
+using JuliaCrypt.Managers.KeyManagers;
 using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
@@ -10,21 +11,24 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using JuliaCrypt.Misc;
 
-namespace JuliaCrypt.CryptographicManagers
+namespace JuliaCrypt.Managers.CryptographicManagers
 {
     public abstract class CryptographicManager : IDisposable
     {
-        private static Dictionary<string, Type> _cryptographicManagerTypes = new();
+        private static readonly Dictionary<string, Type> _cryptographicManagerTypes = [];
         public static IEnumerable<Type> CryptographicManagerTypes 
         { get => _cryptographicManagerTypes.Values; }
 
-        private static Dictionary<Type, CryptographicManager> _cryptographicManagers = new();
+        private static readonly Dictionary<Type, CryptographicManager> _cryptographicManagers = [];
         public static IEnumerable<CryptographicManager> CryptographicManagers
         { get => _cryptographicManagers.Values; }
 
         public static IEnumerable<string> CryptographicManagerNames
         { get => _cryptographicManagerTypes.Keys; }
+
+        public static string SelectedManager { get => ((ComboBoxItem)App.MWInstance.EncryptionFamilySelector.SelectedItem!).Content!.ToString()!; }
 
         public static void InitializeManagers() 
         {
@@ -90,6 +94,7 @@ namespace JuliaCrypt.CryptographicManagers
         protected abstract string Identifier { get; }
         public abstract uint SelectedKeyBitSize { get; protected set; }
         protected abstract long FamilyBiggestKeyBitSize { get; }
+        public virtual bool ValidSettings { get => GetManager(SelectedManager) != null; }
         protected virtual void Initialize()
         {
             BiggestKeyBitSize = FamilyBiggestKeyBitSize;
@@ -104,7 +109,7 @@ namespace JuliaCrypt.CryptographicManagers
         {
             dynamic res = new System.Dynamic.ExpandoObject();
 
-            var selectedManager = ((ComboBoxItem)App.MWInstance.EncryptionFamilySelector.SelectedItem!).Content!.ToString()!;
+            var selectedManager = SelectedManager;
             var activeManager = GetManager(selectedManager);
             if (activeManager != null && activeManager.GetType() != typeof(CryptographicManager))
             {

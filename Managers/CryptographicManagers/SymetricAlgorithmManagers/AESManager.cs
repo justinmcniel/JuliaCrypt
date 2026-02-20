@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace JuliaCrypt.CryptographicManagers
+namespace JuliaCrypt.Managers.CryptographicManagers.SymetricAlgorithmManagers
 {
-    internal class AESManager : SystemSymetricAlgorithmManager
+    internal class AESManager : SymetricAlgorithmManager
     {
         protected override string Identifier { get => "AES (Advanced Encryption Standard)"; }
 

@@ -10,9 +10,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JuliaCrypt.CryptographicManagers
+namespace JuliaCrypt.Managers.CryptographicManagers.SymetricAlgorithmManagers
 {
-    internal class RC2Manager : SystemSymetricAlgorithmManager
+    internal class RC2Manager : SymetricAlgorithmManager
     {
         protected override string Identifier { get => "LEGACY: RC2"; }
 
@@ -45,7 +45,7 @@ namespace JuliaCrypt.CryptographicManagers
                 HorizontalAlignment = HorizontalAlignment.Left,
                 AutoScrollToSelectedItem = true,
             };
-            EventHandler<SelectionChangedEventArgs> onChange = (object? sender, SelectionChangedEventArgs args) =>
+            EventHandler<SelectionChangedEventArgs> onChange = (sender, args) =>
             {
                 if (sender == keySizeComboBox)
                 {

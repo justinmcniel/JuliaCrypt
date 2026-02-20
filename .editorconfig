@@ -1,0 +1,10 @@
+﻿[*.cs]
+
+# IDE0039: Use local function
+csharp_style_prefer_local_over_anonymous_function = false
+
+# IDE0350: Use implicitly typed lambda
+csharp_style_prefer_implicitly_typed_lambda_expression = false
+
+# IDE0063: Use simple 'using' statement
+csharp_prefer_simple_using_statement = false

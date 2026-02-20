@@ -1,18 +1,20 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using Avalonia.Dialogs.Internal;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Dialogs.Internal;
-using Avalonia.Interactivity;
-using Avalonia.Layout;
 
-namespace JuliaCrypt
+namespace JuliaCrypt.Misc
 {
     public static class Utilities
     {
@@ -49,7 +51,7 @@ namespace JuliaCrypt
             VerticalAlignment verticalAlignment = VerticalAlignment.Center, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center) 
             where TEnum : struct, Enum
         {
-            List<RadioButton> res = new();
+            List<RadioButton> res = [];
 
             Conditional ??= (TEnum val) => { return true; };
 
@@ -82,7 +84,7 @@ namespace JuliaCrypt
         public static List<RadioButton> CreateRadioButtonsFromEnumerable(Panel panel, IEnumerable<object> enumerable, Action<object> OnChanged,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center)
         {
-            List<RadioButton> res = new();
+            List<RadioButton> res = [];
 
             var groupName = Guid.NewGuid().ToString();
 
@@ -95,5 +97,23 @@ namespace JuliaCrypt
 
             return res;
         }
+
+        public static IEnumerable<int> LegalSizes(KeySizes[] sizes)
+        {
+            List<int> res = new();
+            foreach (var span in sizes)
+            {
+                for (var legalSize = span.MinSize; legalSize <= span.MaxSize; legalSize += span.SkipSize)
+                {
+                    if (!res.Contains(legalSize))
+                    { res.Add(legalSize); }
+                    if (span.SkipSize == 0)
+                    { break; }
+                }
+            }
+            return res;
+        }
+
+        public static bool LegalSize(KeySizes[] sizes, int size) => LegalSizes(sizes).Contains(size);
     }
 }

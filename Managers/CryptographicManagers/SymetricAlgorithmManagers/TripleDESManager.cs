@@ -5,9 +5,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JuliaCrypt.CryptographicManagers
+namespace JuliaCrypt.Managers.CryptographicManagers.SymetricAlgorithmManagers
 {
-    internal class TripleDESManager : SystemSymetricAlgorithmManager
+    internal class TripleDESManager : SymetricAlgorithmManager
     {
         protected override string Identifier { get => "LEGACY: TDES (Triple Data Encryption Standard)"; }
 

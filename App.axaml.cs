@@ -1,7 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using JuliaCrypt.CryptographicManagers;
+using JuliaCrypt.Managers.CryptographicManagers;
+using JuliaCrypt.Managers.KeyManagers;
 using JuliaCrypt.ViewModels;
 
 namespace JuliaCrypt

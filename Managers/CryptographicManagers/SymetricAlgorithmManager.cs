@@ -1,5 +1,8 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Layout;
+using JuliaCrypt.Managers.KeyManagers;
+using JuliaCrypt.Misc;
+using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,9 +12,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JuliaCrypt.CryptographicManagers
+namespace JuliaCrypt.Managers.CryptographicManagers
 {
-    internal abstract class SystemSymetricAlgorithmManager : CryptographicManager
+    internal abstract class SymetricAlgorithmManager : CryptographicManager
     {
         protected abstract Func<SymmetricAlgorithm> ManagerCreator { get; }
 
@@ -19,11 +22,8 @@ namespace JuliaCrypt.CryptographicManagers
         protected SymmetricAlgorithm Engine
         {
             get
-            {
-                if (_engine == null)
-                { // lazy loading just in case
-                    _engine = ManagerCreator.Invoke();
-                }
+            { // lazy loading just in case
+                _engine ??= ManagerCreator.Invoke();
                 return _engine;
             }
             set => _engine ??= value;
@@ -37,8 +37,9 @@ namespace JuliaCrypt.CryptographicManagers
 
         public override byte[] Encrypt(byte[] plaintext, KeyManager key)
         {
-            byte[] keyBytes = key.RequestKey(SelectedKeyBitSize);
-            byte[]? IV = key.ShouldRequestIV ? key.RequestIV(Engine.IV.Length) : null;
+            byte[]? keyBytes = key.RequestKey(SelectedKeyBitSize);
+            var IVRequestedLength = Engine.IV.Length;
+            byte[]? IV = key.RequestIV(IVRequestedLength * 8);
             IV ??= Engine.IV;
 
             if (plaintext == null || plaintext.Length <= 0)
@@ -50,13 +51,14 @@ namespace JuliaCrypt.CryptographicManagers
             { throw new ArgumentException($"Was looking for {SelectedKeyBitSize} bits of key, but only got {keyBytes.Length} bits ({Identifier} Encrypt)"); }
             Engine.Key = keyBytes;
 
-            if (IV == null || IV.Length <= 0)
+            if (IV == null || IV.Length < IVRequestedLength)
             { throw new ArgumentNullException($"Recieved no IV ({Identifier} Encrypt)"); }
             Engine.IV = IV;
 
             byte[] ciphertext;
 
             ICryptoTransform encryptor = Engine.CreateEncryptor(Engine.Key, Engine.IV);
+            plaintext = Misc.Padding.Pad(plaintext, BlockSize / 8, Engine.Padding);
 
             using (MemoryStream memStream = new())
             {
@@ -64,7 +66,7 @@ namespace JuliaCrypt.CryptographicManagers
                 {
                     using (StreamWriter sWriter = new(cryptoStream))
                     {
-                        sWriter.Write(plaintext);
+                        sWriter.BaseStream.Write(plaintext, 0, plaintext.Length);
                     }
                 }
                 ciphertext = memStream.ToArray();
@@ -74,21 +76,22 @@ namespace JuliaCrypt.CryptographicManagers
         }
         public override byte[] Decrypt(byte[] ciphertext, KeyManager key)
         {
-            byte[] keyBytes = key.RequestKey(SelectedKeyBitSize);
-            byte[]? IV = key.ShouldRequestIV ? key.RequestIV(Engine.IV.Length) : null;
+            byte[]? keyBytes = key.RequestKey(SelectedKeyBitSize);
+            var IVRequestedLength = Engine.IV.Length;
+            byte[]? IV = key.RequestIV(IVRequestedLength * 8);
             IV ??= Engine.IV;
 
             if (ciphertext == null || ciphertext.Length <= 0)
-            { throw new ArgumentNullException("Recieved no Plaintext (SymmetricAlgorithm Encrypt)"); }
+            { throw new ArgumentNullException(nameof(ciphertext)); }
 
             if (keyBytes == null)
-            { throw new ArgumentNullException("Recieved no Key (SymmetricAlgorithm Encrypt)"); }
+            { throw new ArgumentNullException(nameof(key)); }
             if (keyBytes.Length * 8 < SelectedKeyBitSize)
             { throw new ArgumentException($"Was looking for {SelectedKeyBitSize} bits of key, but only got {keyBytes.Length} bits (SymmetricAlgorithm Encrypt)"); }
             Engine.Key = keyBytes;
 
-            if (IV == null || IV.Length <= 0)
-            { throw new ArgumentNullException("Recieved no IV (SymmetricAlgorithm Encrypt)"); }
+            if (IV == null || IV.Length <IVRequestedLength)
+            { throw new Exception("Recieved no IV (SymmetricAlgorithm Encrypt)"); }
             Engine.IV = IV;
 
             byte[] plaintext;
@@ -101,19 +104,20 @@ namespace JuliaCrypt.CryptographicManagers
                 {
                     using (StreamWriter sWriter = new(cryptoStream))
                     {
-                        sWriter.Write(ciphertext);
+                        sWriter.BaseStream.Write(ciphertext, 0, ciphertext.Length);
                     }
                 }
                 plaintext = memStream.ToArray();
             }
 
+            plaintext = Misc.Padding.Unpad(plaintext, Engine.Padding);
             return plaintext;
         }
 
         public List<List<RadioButton>> CreateRadioButtons(VerticalAlignment verticalAlignment = VerticalAlignment.Center, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left)
         {
             Panel subOptionPanel = App.MWInstance.EncryptionSubOptions;
-            List<List<RadioButton>> res = new();
+            List<List<RadioButton>> res = [];
 
             if (CreateBlockSizeRadioButtons)
             {
@@ -134,7 +138,7 @@ namespace JuliaCrypt.CryptographicManagers
 
                 List<object> blockSizes = [.. LegalBlockSizes];
                 var blockSizeButtons = Utilities.CreateRadioButtonsFromEnumerable(blockSizePanel, blockSizes, 
-                    (object arg) =>
+                    (arg) =>
                     {
                         if (arg is int blockSize)
                         {
@@ -167,7 +171,7 @@ namespace JuliaCrypt.CryptographicManagers
                 });
                 List<object> keySizes = [.. LegalKeySizes];
                 var keySizeButtons = Utilities.CreateRadioButtonsFromEnumerable(keySizePanel, keySizes,
-                    (object arg) =>
+                    (arg) =>
                     {
                         if (arg is int keySize)
                         {
@@ -199,17 +203,8 @@ namespace JuliaCrypt.CryptographicManagers
                     FontWeight = Avalonia.Media.FontWeight.SemiBold
                 });
                 var modeButtons = Utilities.CreateRadioButtonsFromEnum(modePanel,
-                    (CipherMode arg) =>
-                    {
-                        if (arg is CipherMode mode)
-                        {
-                            Mode = mode;
-                        }
-                        else
-                        {
-                            throw new Exception($"Type Mismatch between {arg.GetType().Name} (actual) and CipherMode (expected)");
-                        }
-                    }, Conditional: (CipherMode mode) =>
+                    (CipherMode mode) => { Mode = mode; }, 
+                    Conditional: (CipherMode mode) =>
                     {
                         var tmp = Engine.Mode;
                         try 
@@ -245,17 +240,8 @@ namespace JuliaCrypt.CryptographicManagers
                     FontWeight = Avalonia.Media.FontWeight.SemiBold
                 });
                 var paddingButtons = Utilities.CreateRadioButtonsFromEnum(paddingPanel,
-                    (PaddingMode arg) =>
-                    {
-                        if (arg is PaddingMode padding)
-                        {
-                            Padding = padding;
-                        }
-                        else
-                        {
-                            throw new Exception($"Type Mismatch between {arg.GetType().Name} (actual) and PaddingMode (expected)");
-                        }
-                    }, verticalAlignment: verticalAlignment, horizontalAlignment: horizontalAlignment);
+                    (PaddingMode padding) => { Padding = padding; }, 
+                    verticalAlignment: verticalAlignment, horizontalAlignment: horizontalAlignment);
                 paddingButtons.Where(b => b.Content?.ToString() == Padding.ToString()).First().IsChecked = true;
                 res.Add(paddingButtons);
             }
@@ -265,45 +251,18 @@ namespace JuliaCrypt.CryptographicManagers
 
         protected virtual bool CreateBlockSizeRadioButtons { get => LegalBlockSizes.Count() > 1; }
         public int BlockSize { get => Engine.BlockSize; protected set => Engine.BlockSize = value; }
+        
         public int FeedbackSize { get => Engine.FeedbackSize; }
+        
         protected virtual bool CreateKeySizeRadioButtons { get => LegalKeySizes.Count() > 1; }
         public override uint SelectedKeyBitSize { get => (uint)Engine.KeySize; protected set => Engine.KeySize = (int)value; }
+        
         public IEnumerable<int> LegalBlockSizes 
-        {
-            get
-            {
-                List<int> res = new();
-                foreach (var sizeRange in Engine.LegalBlockSizes)
-                {
-                    if (sizeRange.SkipSize == 0)
-                    { res.Add(sizeRange.MinSize); }
-                    else
-                    {
-                        for (int size = sizeRange.MinSize; size <= sizeRange.MaxSize; size += sizeRange.SkipSize)
-                        { res.Add((int)size); }
-                    }
-                }
-                return res;
-            }
-        }
+        { get => Utilities.LegalSizes(Engine.LegalBlockSizes); }
+
         public IEnumerable<int> LegalKeySizes
-        {
-            get
-            {
-                List<int> res = new();
-                foreach(var sizeRange in Engine.LegalKeySizes)
-                {
-                    if (sizeRange.SkipSize == 0)
-                    { res.Add(sizeRange.MaxSize); }
-                    else
-                    {
-                        for (int size = sizeRange.MinSize; size <= sizeRange.MaxSize; size += sizeRange.SkipSize)
-                        { res.Add((int)size); }
-                    }
-                }
-                return res;
-            }
-        }
+        { get => Utilities.LegalSizes(Engine.LegalKeySizes); }
+
         protected override long FamilyBiggestKeyBitSize 
         { 
             get
@@ -346,10 +305,18 @@ namespace JuliaCrypt.CryptographicManagers
 
         protected override void DeserializeHelper(dynamic serialized)
         {
-            SelectedKeyBitSize = serialized.KeySize;
-            Mode = serialized.Mode;
-            Padding = serialized.Padding;
-            BlockSize = serialized.BlockSize;
+            try
+            { SelectedKeyBitSize = serialized.KeySize; }
+            catch (RuntimeBinderException) { }
+            try
+            { Mode = serialized.Mode; }
+            catch (RuntimeBinderException) { }
+            try
+            { Padding = serialized.Padding; }
+            catch (RuntimeBinderException) { }
+            try
+            { BlockSize = serialized.BlockSize; }
+            catch (RuntimeBinderException) { }
         }
     }
 }
